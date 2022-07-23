@@ -1,0 +1,107 @@
+version: '3'
+services:
+  registry-service:
+    image: josegab/tecontrato-docker-registry-service
+    ports:
+      - 8761:8761
+    networks:
+      - tecontrato1
+
+  config-service:
+    image: josegab/tecontrato-docker-config-service
+    links:
+      - registry-service
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://registry-service:8761/eureka
+    depends_on:
+      - registry-service
+    ports:
+      - 8081:8081
+    networks:
+      - tecontrato1
+
+  admin:
+    image: josegab/tecontrato-docker-admin
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://registry-service:8761/eureka
+    restart: on-failure
+    depends_on:
+      - registry-service
+      - config-service
+    ports:
+      - 8086:8086
+    networks:
+      - tecontrato1
+
+  gateway-service:
+    image: josegab/tecontrato-docker-gateway-service
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://registry-service:8761/eureka
+    depends_on:
+      - registry-service
+      - config-service
+    networks:
+      - tecontrato1
+    ports:
+      - 8080:8080
+
+  budget-service:
+    image: josegab/tecontrato-docker-budget-service
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://registry-service:8761/eureka
+    depends_on:
+      - registry-service
+      - config-service
+    networks:
+      - tecontrato1
+    ports:
+      - 8092:8092
+
+  contractor-service:
+    image: josegab/tecontrato-docker-contractor-service
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://registry-service:8761/eureka
+    restart: on-failure
+    depends_on:
+      - registry-service
+      - config-service
+    networks:
+      - tecontrato1
+    ports:
+      - 8091:8091
+
+  project-service:
+    image: josegab/tecontrato-docker-project-service
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://registry-service:8761/eureka
+    restart: on-failure
+    depends_on:
+      - registry-service
+      - config-service
+    networks:
+      - tecontrato1
+    ports:
+      - 8093:8093
+
+  propietario-service:
+    image: josegab/tecontrato-docker-propietario-service
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://registry-service:8761/eureka
+    restart: on-failure
+    depends_on:
+      - registry-service
+      - config-service
+    networks:
+      - tecontrato1
+    ports:
+      - 8095:8095
+
+networks:
+  tecontrato1:
